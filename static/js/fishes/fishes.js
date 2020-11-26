@@ -10,13 +10,15 @@ import * as Fish7 from "/js/fishes/fish7.js";
 import * as Fish8 from "/js/fishes/fish8.js";
 import * as Fish9 from "/js/fishes/fish9.js";
 import * as Fish10 from "/js/fishes/fish10.js";
+import * as Starfish from "/js/fishes/starfishTest.js";
+let starfish;
 
 let fishes = [10];
 let fishes_ = [10];
 let fish_test;
 let fish_test_1;
 let speed = 0;
-
+let inverseFlag = 0;
 export class Fishes {
   createFishes(scenes) {
     fish_test = new fishex.Fish();
@@ -63,6 +65,10 @@ export class Fishes {
     fishes_[9] = fishes[9].fish10;
     scenes.add(fishes_[9]);
 
+    starfish = new Starfish.Starfish();
+    scenes.add(starfish.starfish);
+    // console.log(starfish.starfish);
+
     return scenes;
   }
 
@@ -105,7 +111,7 @@ export class Fishes {
     {
       fishes_[4].position.x = 100 * Math.cos(speed);
       fishes_[4].position.y = -10 + 25 * Math.cos(speed);
-      fishes_[4].rotation.y = timer * fishes[4].speed;
+      fishes_[4].rotation.y = -timer * fishes[4].speed;
     }
 
     /* Fish 6 */
@@ -113,6 +119,20 @@ export class Fishes {
       fishes_[5].position.x = 50 * Math.cos(speed);
       fishes_[5].position.y = -10 + 25 * Math.cos(speed);
       fishes_[5].rotation.y = -timer * fishes[5].speed;
+    }
+
+    /* Fish 7 */
+    {
+      fishes_[6].position.x = 70 * Math.cos(speed);
+      fishes_[6].position.y = -10 + 30 * Math.cos(speed);
+      fishes_[6].rotation.y = timer * fishes[6].speed;
+    }
+
+    /* Fish 8 */
+    {
+      fishes_[7].position.x = 55 * Math.cos(speed);
+      fishes_[7].position.y = 20 + 40 * Math.cos(speed);
+      fishes_[7].rotation.y = timer * fishes[7].speed;
     }
   }
 

@@ -3,11 +3,10 @@ import { OrbitControls } from "/modules/three/OrbitControls.js";
 import { OBJLoader2 } from "/modules/three/OBJLoader2.js";
 import { MTLLoader } from "/modules/three/MTLLoader.js";
 import { MtlObjBridge } from "/modules/three/obj2/bridge/MtlObjBridge.js";
+import { FirstPersonControls } from "/modules/three/obj2/FirstPersonControls.js";
+
 import * as Fishes from "/js/fishes/fishes.js";
 import { Water } from "/assets/Water2.js";
-
-// 녹조 (수정중... 색 변화 X)
-//  209 water effect를 감소시키거나, 다른방법으로 구현하거나...
 
 let canvas = document.querySelector("#gl-canvas");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -20,6 +19,7 @@ scene.background = new THREE.Color(0.8, 0.8, 0.8);
 let camera;
 let light;
 let controls;
+let FPControls;
 // loaders
 let mtlLoader;
 let objLoader;
@@ -27,6 +27,15 @@ let objLoader;
 let width = canvas.clientWidth;
 let height = canvas.clientHeight;
 let mousePos = { x: 0, y: 0 };
+let bubbles = [];
+
+let food = 0;
+var timer = 0;
+let cameraPostionTempZ;
+let fishView = 0;
+let fishViewFlag = 0;
+let viewFlag = 0;
+const clock = new THREE.Clock();
 
 const params = {
   // color: "#00ffff",
@@ -36,32 +45,59 @@ const params = {
   flowY: 1,
 };
 
-let testFlag = 0;
-
 window.onload = function init() {
-  document.addEventListener("mousemove", handleMouseMove, false);
+  // document.addEventListener("mousemove", handleMouseMove, false);
   initThree();
   initObj();
   render();
+  // document.getElementById("webgl-key").appendChild(renderer.domElement);
+  document.addEventListener("keydown", keyCodeOn, false);
+  onkeydown = "if(event.keyCode==13) javascript:함수명();";
 
   // 로딩속도가 느린 장치를 위해서...
-  var testInterval = setInterval(function () {
-    if (testFlag == 1) clearTimeout(testInterval);
+  var lodingInterval = setInterval(function () {
+    if (loadingFlag == 1) clearTimeout(lodingInterval);
     else {
-      test();
+      loading();
     }
   }, 500);
 };
 
-function test() {
-  if (scene.children[14].children[1] != undefined) {
-    scene.children[14].children[1].material.opacity = 0.4;
-    console.log(scene.children[14].children[1]);
+let loadingFlag = 0;
+function loading() {
+  if (scene.children[16].children[1] != undefined) {
+    scene.children[16].children[1].material.opacity = 0.4;
+    // console.log(scene.children[16].children[1]);
+    {
+      for (var x = 0; x <= 8; x++) {
+        // for loop to create cubes
+        var randScale = 5 * Math.random();
+        bubbles[x] = new THREE.Mesh(sphereGeometry, clearWhiteTopMaterial);
+        bubbles[x].position.set(
+          -75 + -25 * Math.random(),
+          30 + 20 * Math.random() * 10,
+          -75 + -25 * Math.random()
+        );
+        //bubbles[x].rotation.set(0, 0, 0);
+        bubbles[x].scale.set(0.1 * randScale, 0.1 * randScale, 0.1 * randScale);
+        scene.add(bubbles[x]);
+      }
+    }
     const loadingElem = document.querySelector("#loading");
     loadingElem.style.display = "none";
-    testFlag = 1;
+    loadingFlag = 1;
   }
 }
+
+var sphereGeometry = new THREE.SphereGeometry(6, 100, 100);
+
+// material for the top of the aquarium structures
+var clearWhiteTopMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff,
+  shininess: 30,
+  specular: 0x111111,
+  opacity: 0.5,
+});
 
 /**
  * Threejs 초기화 함수
@@ -75,19 +111,24 @@ function initThree() {
   camera.position.set(0, 10, 20);
 
   controls = new OrbitControls(camera, canvas);
-  controls.autoRotate = true;
+  // controls.autoRotate = true;
   controls.autoRotateSpeed = 0.8;
   controls.enableDamping = true;
-  // controls.rotateSpeed = 0.3;
+  controls.rotateSpeed = 0.3;
   controls.zoomSpeed = 1.2;
   controls.panSpeed = 0.8;
-  // console.log(controls);
+  controls.enableKeys = false;
+
+  FPControls = new FirstPersonControls(camera, canvas);
+  FPControls.movementSpeed = 50;
+  FPControls.lookSpeed = 0.05;
+  FPControls.lookVertical = true;
+  FPControls.constrainVertical = true;
+  FPControls.verticalMin = 1.0;
+  FPControls.verticalMax = 2.0;
 
   addDirectionalLight();
 }
-
-let food = 0;
-var timer = 0;
 
 function render() {
   // 창 크기에 따라 늘어나는 문제부터 해결해봅시다.
@@ -98,36 +139,43 @@ function render() {
     camera.updateProjectionMatrix();
   }
 
-  timer++; // 1초에 60개씩 증가..
+  timer++; // 1초에 60개씩 증가..·
   // console.log(timer); //
 
-  if (timer >= 1200 && timer < 1400) {
-    scene.children[14].children[1].material.color.r = 0.3;
-    scene.children[14].children[1].material.color.g = 1;
-    scene.children[14].children[1].material.color.b = 0.5;
-  } else if (timer >= 1400) {
+  if (timer >= 3000 && timer < 3200) {
+    scene.children[16].children[1].material.color.r = 0.3;
+    scene.children[16].children[1].material.color.g = 1;
+    scene.children[16].children[1].material.color.b = 0.5;
+  } else if (timer >= 3200) {
     if (confirm("물이 더러워졌습니다. 확인을 누르면 다시 깨끗해집니다.")) {
-      scene.children[14].children[1].material.color.r = 1;
-      scene.children[14].children[1].material.color.g = 1;
-      scene.children[14].children[1].material.color.b = 1;
+      scene.children[16].children[1].material.color.r = 1;
+      scene.children[16].children[1].material.color.g = 1;
+      scene.children[16].children[1].material.color.b = 1;
       timer = 0;
     } else timer -= 150;
   }
 
-  if (food) {
-    fishes.update(mousePos);
-  } else fishes.move();
+  if (fishView) {
+    fishes.move();
+    if (fishViewFlag == 0) {
+      camera.position.set(0, 73, 5);
+      camera.updateProjectionMatrix();
+      viewFlag = 0;
+      fishViewFlag = 1;
+    } else FPControls.update(clock.getDelta());
+  } else {
+    if (food) {
+      fishes.update(mousePos);
+    } else fishes.move();
 
-  // {
-  //   // 1인칭을 위한 작업
-  //   var speed = Date.now() * 0.00025;
-  //   camera.position.x = Math.cos(speed) * 10;
-  //   camera.position.z = Math.sin(speed) * 10;
+    if (viewFlag == 0) {
+      camera.position.set(0, 73, cameraPostionTempZ);
+      camera.updateProjectionMatrix();
+      viewFlag = 1;
+      fishViewFlag = 0;
+    } else controls.update();
+  }
 
-  //   camera.lookAt(scene.position); //0,0,0
-  // }
-
-  controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(render);
 }
@@ -136,31 +184,48 @@ function render() {
  * Objects 초기화 함수
  */
 function initObj() {
-  // createWater();
   createFishTank();
   createFish();
+  // createWater();
+  // createWater1();
+  // createWater2();
+  // createWater3();
 }
 
 // 광원 효과
 function addDirectionalLight() {
+  //0x06125d; // Dark Blue, 0xffffff; // White
+
   {
+    // Set sky and ground light
     const skyColor = 0xb1e1ff; // light blue
     const groundColor = 0xb97a20; // brownish orange
-    const intensity = 1;
+    const intensity = 1.0;
     const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
     scene.add(light);
   }
+
   {
-    const color = 0xffffff;
-    const intensity = 1;
+    // Set the Sunlight
+    const color = 0xffffff; // White
+    const intensity = 0.6;
     light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
-    // light.position.x = 5;
-    // light.position.y = 5;
-    // light.position.z = 5;
-    // light.castShadow = true;
+    light.position.set(0, 10, 0);
+    light.target.position.set(-5, 0, 0);
     scene.add(light);
     scene.add(light.target);
+  }
+
+  {
+    // Set the Rectangular LED Light
+    const color = 0x06125d; // Dark Blue
+    const intensity = 10;
+    const width = 140;
+    const height = 70;
+    light = new THREE.RectAreaLight(color, intensity, width, height);
+    light.position.set(0, 100, 0);
+    light.rotation.x = THREE.MathUtils.degToRad(-90);
+    scene.add(light);
   }
 }
 
@@ -192,7 +257,6 @@ function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
   // in whatever direction the camera was from the center already
   // 방향 벡터에 따라 카메라를 육면체로부터 일정 거리에 위치시킵니다
   camera.position.copy(direction.multiplyScalar(distance).add(boxCenter));
-
   // pick some near and far values for the frustum that
   // will contain the box.
   camera.near = boxSize / 100;
@@ -202,6 +266,8 @@ function frameArea(sizeToFitOnScreen, boxSize, boxCenter, camera) {
 
   // point the camera to look at the center of the box
   camera.lookAt(boxCenter.x, boxCenter.y, boxCenter.z);
+
+  cameraPostionTempZ = camera.position.z; // 시점 변경했을 때 최초의 카메라 위치로 돌아오기 위한 변수
 }
 
 function handleMouseMove(event) {
@@ -210,11 +276,51 @@ function handleMouseMove(event) {
   mousePos = { x: tx, y: ty };
 }
 
+function getMouseClickPos(event) {
+  const tx = -1 + (event.clientX / width) * 2;
+  const ty = -(event.clientY / height) * 2;
+  // mousePos = { x: tx, y: ty };
+  const rect = canvas.getBoundingClientRect();
+  let clickposx = event.clientX - rect.left;
+  let clickposy = event.clientY - rect.top;
+  mousePos = { x: tx, y: 0 };
+  console.log(mousePos);
+}
+
+function keyCodeOn(event) {
+  switch (event.keyCode) {
+    case 38: // up
+    case 87: // w
+      moveForward = true;
+      break;
+    case 37: // left
+    case 65: // a
+      moveLeft = true;
+      break;
+    case 40: // down
+    case 83: // s
+      moveBackward = true;
+      break;
+    case 39: // right
+    case 68: // d
+      moveRight = true;
+      break;
+
+    case 86: // v입력시 1인칭 시점모드로
+      fishView = 1;
+      break;
+    case 27: // ESC 입력시 3인칭 시점모드로
+      fishView = 0;
+      break;
+  }
+}
+
 {
   // 추후 더블 클릭시 먹이 생성 및 생성좌표 전달 예정
   canvas.addEventListener("dblclick", function () {
     food = true;
     controls.autoRotate = false;
+    getMouseClickPos(event);
 
     setTimeout(function () {
       food = false;
@@ -260,29 +366,91 @@ function createFishTank() {
   });
 }
 
-let water;
-function createWater() {
-  // water
-  const waterGeometry = new THREE.PlaneBufferGeometry(20, 20);
-
-  water = new Water(waterGeometry, {
-    color: params.color,
-    // scale: params.scale,
-    // flowDirection: new THREE.Vector2(params.flowX, params.flowY),
-    textureWidth: 1024,
-    textureHeight: 1024,
-  });
-
-  water.position.set(0, 65, 60);
-  water.scale.set(10.5, 5.5, 10);
-  water.rotation.set(0, 0, 0);
-  // water.rotation.x = Math.PI * -0.5;
-  scene.add(water);
-  console.log(water);
-}
-
 let fishes;
 function createFish() {
   fishes = new Fishes.Fishes();
   fishes.createFishes(scene);
 }
+
+// let water;
+// function createWater() {
+//   // water
+//   const waterGeometry = new THREE.PlaneBufferGeometry(20, 20);
+
+//   water = new Water(waterGeometry, {
+//     color: params.color,
+//     // scale: params.scale,
+//     // flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+//     textureWidth: 1024,
+//     textureHeight: 1024,
+//   });
+
+//   water.position.set(0, 65, 85);
+//   water.scale.set(10.5, 5.5, 10);
+//   // water.rotation.set(0, 0, 0);
+//   water.rotation.y = Math.PI;
+//   scene.add(water);
+//   console.log(water);
+// }
+
+// let water1;
+// function createWater1() {
+//   // water
+//   const waterGeometry = new THREE.PlaneBufferGeometry(20, 20);
+
+//   water1 = new Water(waterGeometry, {
+//     color: params.color,
+//     // scale: params.scale,
+//     // flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+//     textureWidth: 1024,
+//     textureHeight: 1024,
+//   });
+
+//   water1.position.set(0, 65, -85);
+//   water1.scale.set(10.5, 5.5, 10);
+//   water1.rotation.set(0, 0, 0);
+//   // water.rotation.x = Math.PI * -0.5;
+//   scene.add(water1);
+//   console.log(water);
+// }
+
+// let water2;
+// function createWater2() {
+//   // water
+//   const waterGeometry = new THREE.PlaneBufferGeometry(20, 20);
+
+//   water2 = new Water(waterGeometry, {
+//     color: params.color,
+//     // scale: params.scale,
+//     // flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+//     textureWidth: 1024,
+//     textureHeight: 1024,
+//   });
+
+//   water2.position.set(100, 65, 0);
+//   water2.scale.set(10.5, 5.5, 10);
+//   // water.rotation.set(0, 0, 0);
+//   water2.rotation.y = Math.PI * -0.5;
+//   scene.add(water2);
+//   console.log(water);
+// }
+
+// let water3;
+// function createWater3() {
+//   // water
+//   const waterGeometry = new THREE.PlaneBufferGeometry(20, 20);
+
+//   water3 = new Water(waterGeometry, {
+//     color: params.color,
+//     // scale: params.scale,
+//     // flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+//     textureWidth: 1024,
+//     textureHeight: 1024,
+//   });
+
+//   water3.position.set(-100, 65);
+//   water3.scale.set(10.5, 5.5, 10);
+//   water3.rotation.y = Math.PI * 0.5;
+//   scene.add(water3);
+//   console.log(water);
+// }

@@ -12,11 +12,14 @@ export class Fish {
     this.fish7 = new THREE.Group();
     let fishRotation = [Math.PI * -0.5, 0, Math.PI * -0.2];
     let fishPosition = [20, 60, -20];
+    let fishScale = [1.7, 1.7, 1.7];
+    let fish_size_ratio = 1;
 
     this.minX = -100 - fishPosition[0]; // -100 ~ 100
     this.maxX = 100 - fishPosition[0];
     this.minY = 30 - fishPosition[1]; // 30 ~ 170
     this.maxY = 170 - fishPosition[1];
+    this.speed = 10;
 
     mtlLoader = new MTLLoader();
     mtlLoader.load(
@@ -42,6 +45,11 @@ export class Fish {
               fishPosition[0],
               fishPosition[1],
               fishPosition[2]
+            );
+            root.scale.set(
+              fish_size_ratio * fishScale[0],
+              fish_size_ratio * fishScale[1],
+              fish_size_ratio * fishScale[2]
             );
             this.fish7.add(root);
           }

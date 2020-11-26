@@ -1,9 +1,25 @@
+/*
+************************* 성원's To do list *************************
+
+1. 물이 더러워지고, 물을 가는 것 -> 채현님이 구현 해주심. (완료)
+2. 배경화면을 Load하여 보자. (완료) -> 추후에 책상이 들어가있는 6 sided 된 배경화면을 구해보자.
+3. 물고기의 scale을 노가다로 조정하여 보자. (완료)
+4. water obj파일을 구하여 load & 어항 크기와 높이에 맞게 scale을 조정해보자. (진행중)
+   -> 크기는 조정이 가능하나, 높이는 아무리 해도 늘어나질 않는다.
+5. HTML에서 값을 받아와서, 물고기의 숫자를 조정하여보자. (예정)
+
+
+*/
+
 import * as THREE from "../assets/modules/three/three.module.js";
 import { OrbitControls } from "../assets/modules/three/OrbitControls.js";
 import { OBJLoader2 } from "../assets/modules/three/OBJLoader2.js";
 import { MTLLoader } from "../assets/modules/three/MTLLoader.js";
 import { MtlObjBridge } from "../assets/modules/three/obj2/bridge/MtlObjBridge.js";
 import { GLTFLoader } from "../assets/modules/three/GLTFLoader.js";
+import {RectAreaLightUniformsLib} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/lights/RectAreaLightUniformsLib.js';
+import {RectAreaLightHelper} from 'https://threejsfundamentals.org/threejs/resources/threejs/r122/examples/jsm/helpers/RectAreaLightHelper.js';
+import { Water } from "../assets/Water2.js";
 
 /**************************************************************    Variables     ***********************************************************/
 
@@ -14,26 +30,55 @@ let canvas = document.querySelector("#gl-canvas");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 
 // Scene
-let scene = new THREE.Scene();
-scene.background = new THREE.Color("skyblue");
+// 아래의 순서가 항상 일치해야 한다. (입체감있는 로드가 가능하다.)
+// 우리가 수동으로 사진을 자르면, Load가 안된다. (지정된 program으로 알맞게 잘라야한다.)
+// 6 sided 된 배경 사진을 찾는 것이 매우 힘들다.
+const scene = new THREE.Scene();
+scene.background = new
+THREE.CubeTextureLoader()
+  .setPath("../assets/resources/background/")
+  .load([
+  'px.jpg', 'nx.jpg',
+  'py.jpg', 'ny.jpg',
+  'pz.jpg', 'nz.jpg'
+]);
 
+// Global variable
 let camera;
 let light;
 let controls;
+let root;
 
-// loaders
+
+
+// Loaders
 let mtlLoader;
 let objLoader;
 let textureLoader;
 
-// Objects...
+// Fish Tank (x, -x, y, -y, z, -z)
+const tankCoord = [100, -100, 105, 0, 40, -40];
+
+// Fish
 let fishObjs = [];
 let fishMtls = [];
-let fishTexture = [];
+let fishTextures = [];
 let fishRotations = [];
 let fishPositions = [];
 let fishScales = [];
-let root;
+
+
+// Water
+let water_back;
+let water_left;
+let water_right;
+
+const params = {
+  color: "#ffffff",
+  scale: 3000,
+  flowX: 1,
+  flowY: 1
+};
 
 /*****************************************************************************    Main     **************************************************************************/
 
@@ -57,7 +102,7 @@ function initThree() {
   // camera.position.x = 2;
   // camera.position.y = 1;
   // camera.position.z = 2;
-  camera.position.set(0, 10, 20);
+  camera.position.set(0, 0, 0);
 
   var clock = new THREE.Clock();
 
@@ -125,7 +170,7 @@ function initObj() {
     "./assets/resources/fish/fish9/13014_Six_Line_Wrasse_v1_l3.mtl",
     "./assets/resources/fish/fish10/13016_Yellowtai_ Damselfish_v2_l3.mtl",
   ];
-  fishTexture = [
+  fishTextures = [
     "../assets/resources/fish/fish1/13003_Auriga_Butterflyfish_diff.jpg",
     "../assets/resources/fish/fish2/13006_Blue_Tang_v1_diff.jpg",
     "../assets/resources/fish/fish3/13004_Bicolor_Blenny_v1_diff.jpg",
@@ -149,6 +194,7 @@ function initObj() {
     [Math.PI * -0.5, 0, Math.PI * -0.3],
     [Math.PI * -0.5, Math.PI * -0.1, 0],
   ];
+
   /* 물고기들 일렬로 세워놓고 싶을때
   fishPositions = [
     [-70, 60, 0],
@@ -164,6 +210,7 @@ function initObj() {
   ];
   */
 
+  //* 물고기들 정해진 위치
   fishPositions = [
     [-65, 80, 0],
     [-70, 60, 10],
@@ -176,43 +223,61 @@ function initObj() {
     [60, 20, 0],
     [75, 40, 10],
   ];
+  //*/
 
   fishScales = [
+    [0.5, 0.5, 0.5],
+    [0.8, 0.8, 0.8],
+    [1.5, 1.5, 1.5],
+    [3,3,3],
+    [8, 8, 8],
+    [0.3, 0.3, 0.3],
+    [1.7, 1.7, 1.7],
+    [0.8, 0.8, 0.8],
     [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
-    [1, 1, 1],
+    [3, 3, 3],
   ];
+
+  createWater();
+
 }
 
 /* Illumination Effect */
 function addDirectionalLight() {
-  {
-    const skyColor = 0xb1e1ff; // light blue
-    const groundColor = 0xb97a20; // brownish orange
-    const intensity = 1;
-    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
-    scene.add(light);
-  }
 
-  {
-    const color = 0xffffff;
-    const intensity = 1;
+//0x06125d; // Dark Blue, 0xffffff; // White
+
+  { // Set sky and ground light
+    const skyColor = 0xb1e1ff;    // light blue
+    const groundColor = 0xb97a20; // brownish orange
+    const intensity = 1.0;
+    const light = new THREE.HemisphereLight(skyColor, groundColor, intensity);
+    scene.add(light);}
+
+  { // Set the Sunlight
+    const color = 0xffffff; // White
+    const intensity = 0.6;
     light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(0, 0, 0);
-    // light.position.x = 5;
-    // light.position.y = 5;
-    // light.position.z = 5;
-    // light.castShadow = true;
+    light.position.set(0, 10, 0);
+    light.target.position.set(-5, 0, 0);
     scene.add(light);
-    scene.add(light.target);
-  }
+    scene.add(light.target);}
+
+  { // Set the Rectangular LED Light
+    const color = 0x06125d;; // Dark Blue
+    const intensity = 10;
+    const width = 140;
+    const height = 70;
+    light = new THREE.RectAreaLight(color, intensity, width, height);
+    light.position.set(0, 100, 0);
+    light.rotation.x = THREE.MathUtils.degToRad(-90);
+    scene.add(light);
+
+    // LED 조명에 대해서 위치에 사각형을 그려준다.
+    // 실제로는 지워도 조명은 정상 동작한다.
+    const helper = new RectAreaLightHelper(light);
+    light.add(helper);}
+
 }
 
 /* canvas의 원본 크기와 디스플레이 크기를 비교해 원본 크기를 변경할지 결정하는 함수 */
@@ -296,35 +361,75 @@ function loadObjLoader() {
       fishObjs[i],
       fishRotations[i],
       fishPositions[i],
-      fishTexture[i],
+      fishTextures[i],
       fishScales[i]
     );
   }
 }
 
 function fishObjLoader(
-  fishMtl,
-  fishObj,
-  fishRotation,
-  fishPosition,
-  fishTexture,
-  fishScale
+  fishMtls,
+  fishObjs,
+  fishRotations,
+  fishPositions,
+  fishTextures,
+  fishScales
 ) {
   mtlLoader = new MTLLoader();
-  mtlLoader.load(fishMtl, mtlParseResult => {
+  mtlLoader.load(fishMtls, mtlParseResult => {
     objLoader = new OBJLoader2();
     const materials = MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult);
     for (const material of Object.values(materials)) {
       material.side = THREE.DoubleSide;
     }
     objLoader.addMaterials(materials);
-    objLoader.load(fishObj, root => {
-      root.rotation.set(fishRotation[0], fishRotation[1], fishRotation[2]);
-      root.position.set(fishPosition[0], fishPosition[1], fishPosition[2]);
-      root.scale.set(fishScale[0], fishScale[1], fishScale[2]);
-      console.log(fishScale);
-      // root.scale.set(1, 1, 1);
+    objLoader.load(fishObjs, root => {
+      // 나중에 물고기의 크기를 한번에 변경할 때 쓰인다.
+      const fish_size_ratio = 1.0;
+      root.rotation.set(fishRotations[0], fishRotations[1], fishRotations[2]);
+      root.position.set(fishPositions[0], fishPositions[1], fishPositions[2]);
+      root.scale.set(fish_size_ratio*fishScales[0], fish_size_ratio*fishScales[1], fish_size_ratio*fishScales[2]);
       scene.add(root);
     });
   });
+}
+
+//앞면
+  //water.position.set(0, 42.5, 41);
+
+// water가 아닌 유리면처럼 사용해볼까?
+function createWater() {
+  const waterGeometry = new THREE.PlaneBufferGeometry(20, 20);
+  water_back = new Water(waterGeometry, {
+    color: params.color,
+    scale: params.scale,
+    flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+    textureWidth: 200,
+    textureHeight: 100,
+  });
+
+
+  water_left = new Water(waterGeometry, {
+    color: params.color,
+    scale: params.scale,
+    flowDirection: new THREE.Vector2(params.flowX, params.flowY),
+    textureWidth: 200,
+    textureHeight: 100,
+  });
+
+  // 로딩이 완료된 순간을 기준으로 한다.
+
+  /*// 뒷 면
+  water_back.position.set(0, 52.5, -42);
+  water_back.scale.set(5, 7.7, 5.5);
+  water_back.rotation.z = Math.PI * -0.5;
+  scene.add(water_back);
+  */
+
+  // 왼쪽면
+  water_left.position.set(-80, 65, 0);
+  water_left.scale.set(4.5, 4.5, 5.5);
+  water_left.rotation.y = Math.PI * -0.5;
+  scene.add(water_left);
+
 }

@@ -12,6 +12,8 @@ export class Fish {
     this.fish4 = new THREE.Group();
     let fishRotation = [Math.PI * -0.5, 0, Math.PI * 0.3];
     let fishPosition = [-30, 60, 30];
+    let fishScale = [3, 3, 3];
+    let fish_size_ratio = 1;
 
     this.minX = -100 - fishPosition[0]; // -100 ~ 100
     this.maxX = 100 - fishPosition[0];
@@ -43,6 +45,11 @@ export class Fish {
               fishPosition[0],
               fishPosition[1],
               fishPosition[2]
+            );
+            root.scale.set(
+              fish_size_ratio * fishScale[0],
+              fish_size_ratio * fishScale[1],
+              fish_size_ratio * fishScale[2]
             );
             this.fish4.add(root);
           }
