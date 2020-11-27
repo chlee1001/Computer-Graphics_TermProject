@@ -1,6 +1,9 @@
 /*
    먹이는 마우스 클릭? 키보드? --> 마우스 클릭
    캔버스 내에서 더블클릭을 하면 먹이 render 되고 떨어지게 하기
+   x좌표만 얻어오고 z좌표는 랜덤으로 해서 먹이 떨어뜨릴 것!
+
+   line: 255
 */
 
 
@@ -35,9 +38,8 @@ let height = canvas.clientHeight;
 let mousePos = { x: 0, y: 0 };
 let bubbles = [];
 
-// Canvas를 더블클릭 하면 클릭한 곳의 x좌표, y좌표
-let clickposx;
-let clickposy;
+// 먹이 부분 변수들
+let feedTwoPoint = new THREE.Vector2();
 
 const params = {
   // color: "#00ffff",
@@ -83,9 +85,9 @@ function loading() {
       //  scene.add(bubbles[x]);
       }
     }
-    const loadingElem = document.querySelector("#loading");
-    loadingElem.style.display = "none";
-    loadingFlag = 1;
+  //  const loadingElem = document.querySelector("#loading");
+   // loadingElem.style.display = "none";
+    //loadingFlag = 1;
   }
 }
 
@@ -249,18 +251,36 @@ function handleMouseMove(event) {
   mousePos = { x: tx, y: ty };
 }
 
-function getMouseClickPos(event) {
-  const rect = canvas.getBoundingClientRect();
-  clickposx = event.clientX - rect.left;
-  clickposy = event.clientY - rect.top;
-  alert("x: " + clickposx  + " y: " + clickposy);
+// 마우스 더블클릭 시 x,y,z 좌표 반환 (단, y좌표는 고정?)
+function onDocumentMouseClick(event) {
+  // Y좌표를 100? 105? 일단 105으로 해놓고 채현님한테 물어볼 것!
+
+  event.preventDefault();
+  feedTwoPoint.x = (event.clientX / canvas.width) * 2 - 1;
+  feedTwoPoint.y = -(105 / canvas.height) * 2 + 1;
+
+  const zPoint = Math.random() * 1.0;
+  const newVector = new THREE.Vector3(feedTwoPoint.x, feedTwoPoint.y, zPoint);
+
+  return newVector;
 }
 
+// 더블클릭을 하게되면?
 canvas.addEventListener("dblclick", function(event) {
-  getMouseClickPos(event);
+  const feedThreePoint = onDocumentMouseClick(event);  // x,y,z가 다 담긴 vector 생성
+  alert("x: " + feedThreePoint.x + " y: " + feedThreePoint.y + " z: " + feedThreePoint.z); //-> x,y,z 확인!
+
+  // 더블클릭을 했으니 먹이를 생성한다 + 떨어뜨린다
+  food = true;
+  controls.autoRotate = false;
+
+  setTimeout(function() {
+    food = false;
+    controls.autoRotate = true;
+  }, 10000);
 });
 
-  /*
+/*
   // 추후 더블 클릭시 먹이 생성 및 생성좌표 전달 예정
   canvas.addEventListener("dblclick", function () {
     food = true;

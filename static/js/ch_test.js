@@ -14,7 +14,18 @@ const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 let scene = new THREE.Scene();
 // scene.background = new THREE.Color("#000000");
 // scene.background = new THREE.Color("skyblue");
-scene.background = new THREE.Color(0.8, 0.8, 0.8);
+// scene.background = new THREE.Color(0.8, 0.8, 0.8);
+var path = "/assets/resources/background/";
+var format = ".jpg";
+var urls = [
+  path + "px" + format,
+  path + "nx" + format,
+  path + "py" + format,
+  path + "ny" + format,
+  path + "pz" + format,
+  path + "nz" + format,
+];
+scene.background = new THREE.CubeTextureLoader().load(urls);
 
 let camera;
 let light;
@@ -29,8 +40,13 @@ let height = canvas.clientHeight;
 let mousePos = { x: 0, y: 0 };
 let bubbles = [];
 
+let moveForward = false;
+let moveBackward = false;
+let moveLeft = false;
+let moveRight = false;
+
 let food = 0;
-var timer = 0;
+let dirty = 0;
 let cameraPostionTempZ;
 let fishView = 0;
 let fishViewFlag = 0;
@@ -50,9 +66,8 @@ window.onload = function init() {
   initThree();
   initObj();
   render();
-  // document.getElementById("webgl-key").appendChild(renderer.domElement);
+
   document.addEventListener("keydown", keyCodeOn, false);
-  onkeydown = "if(event.keyCode==13) javascript:함수명();";
 
   // 로딩속도가 느린 장치를 위해서...
   var lodingInterval = setInterval(function () {
@@ -65,39 +80,47 @@ window.onload = function init() {
 
 let loadingFlag = 0;
 function loading() {
-  if (scene.children[16].children[1] != undefined) {
-    scene.children[16].children[1].material.opacity = 0.4;
+  if (scene.children[15].children[1] != undefined) {
+    scene.children[15].children[1].material.opacity = 0.3;
     // console.log(scene.children[16].children[1]);
+
     {
-      for (var x = 0; x <= 8; x++) {
-        // for loop to create cubes
-        var randScale = 5 * Math.random();
-        bubbles[x] = new THREE.Mesh(sphereGeometry, clearWhiteTopMaterial);
-        bubbles[x].position.set(
-          -75 + -25 * Math.random(),
-          30 + 20 * Math.random() * 10,
-          -75 + -25 * Math.random()
+      // bubbles
+      var textureCube = new THREE.CubeTextureLoader().load(urls);
+      textureCube.format = THREE.RGBFormat;
+      var geometry = new THREE.SphereGeometry(60, 32, 16);
+
+      var shader = THREE.FresnelShader;
+      var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+
+      uniforms["tCube"].value = textureCube;
+
+      var material = new THREE.ShaderMaterial({
+        // opacity: 1.0,
+        uniforms: uniforms,
+        vertexShader: shader.vertexShader,
+        fragmentShader: shader.fragmentShader,
+      });
+
+      for (var i = 0; i < 50; i++) {
+        var bubble = new THREE.Mesh(geometry, material);
+        bubble.position.set(
+          75 + -25 * Math.random(),
+          20 * Math.random() * 5,
+          50 * Math.random()
         );
-        //bubbles[x].rotation.set(0, 0, 0);
-        bubbles[x].scale.set(0.1 * randScale, 0.1 * randScale, 0.1 * randScale);
-        scene.add(bubbles[x]);
+
+        bubble.scale.x = bubble.scale.y = bubble.scale.z = Math.random() * 0.1;
+        scene.add(bubble);
+        bubbles.push(bubble);
       }
     }
+
     const loadingElem = document.querySelector("#loading");
     loadingElem.style.display = "none";
     loadingFlag = 1;
   }
 }
-
-var sphereGeometry = new THREE.SphereGeometry(6, 100, 100);
-
-// material for the top of the aquarium structures
-var clearWhiteTopMaterial = new THREE.MeshBasicMaterial({
-  color: 0xffffff,
-  shininess: 30,
-  specular: 0x111111,
-  opacity: 0.5,
-});
 
 /**
  * Threejs 초기화 함수
@@ -131,28 +154,14 @@ function initThree() {
 }
 
 function render() {
+  var timer = 0.0001 * Date.now();
+
   // 창 크기에 따라 늘어나는 문제부터 해결해봅시다.
   // 먼저 카메라의 aspect(비율) 속성을 canvas의 화면 크기에 맞춰야 합니다
   if (resizeRendererToDisplaySize(renderer)) {
     const canvas = renderer.domElement;
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
-  }
-
-  timer++; // 1초에 60개씩 증가..·
-  // console.log(timer); //
-
-  if (timer >= 3000 && timer < 3200) {
-    scene.children[16].children[1].material.color.r = 0.3;
-    scene.children[16].children[1].material.color.g = 1;
-    scene.children[16].children[1].material.color.b = 0.5;
-  } else if (timer >= 3200) {
-    if (confirm("물이 더러워졌습니다. 확인을 누르면 다시 깨끗해집니다.")) {
-      scene.children[16].children[1].material.color.r = 1;
-      scene.children[16].children[1].material.color.g = 1;
-      scene.children[16].children[1].material.color.b = 1;
-      timer = 0;
-    } else timer -= 150;
   }
 
   if (fishView) {
@@ -174,6 +183,30 @@ function render() {
       viewFlag = 1;
       fishViewFlag = 0;
     } else controls.update();
+  }
+  if (loadingFlag == 1) {
+    dirty++; // 1초에  ~100개씩 증가..·
+    console.log(dirty);
+    if (dirty >= 2000 && dirty < 2200) {
+      scene.children[15].children[1].material.color.r = 0.3;
+      scene.children[15].children[1].material.color.g = 1;
+      scene.children[15].children[1].material.color.b = 0.5;
+    } else if (dirty >= 2200) {
+      if (confirm("물이 더러워졌습니다. 확인을 누르면 다시 깨끗해집니다.")) {
+        scene.children[15].children[1].material.color.r = 1;
+        scene.children[15].children[1].material.color.g = 1;
+        scene.children[15].children[1].material.color.b = 1;
+        dirty = 0;
+      } else dirty -= 150;
+    }
+
+    for (var i = 0, il = bubbles.length; i < il; i++) {
+      var bubble = bubbles[i];
+
+      bubble.position.x = 100 * Math.cos(timer + i);
+      bubble.position.y = 70 + 40 * Math.sin(timer + i * 1.1);
+      bubble.position.z = 60 * Math.cos(timer + i);
+    }
   }
 
   renderer.render(scene, camera);

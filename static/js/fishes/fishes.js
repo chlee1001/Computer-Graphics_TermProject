@@ -1,5 +1,4 @@
 import * as Helper from "/js/fishes/helpers.js";
-import * as fishex from "/js/fishes/Fish.js";
 import * as Fish1 from "/js/fishes/fish1.js";
 import * as Fish2 from "/js/fishes/fish2.js";
 import * as Fish3 from "/js/fishes/fish3.js";
@@ -10,21 +9,15 @@ import * as Fish7 from "/js/fishes/fish7.js";
 import * as Fish8 from "/js/fishes/fish8.js";
 import * as Fish9 from "/js/fishes/fish9.js";
 import * as Fish10 from "/js/fishes/fish10.js";
-import * as Starfish from "/js/fishes/starfishTest.js";
-let starfish;
+import * as Starfish from "/js/fishes/starfish.js";
 
+let starfish;
 let fishes = [10];
 let fishes_ = [10];
-let fish_test;
-let fish_test_1;
 let speed = 0;
-let inverseFlag = 0;
+
 export class Fishes {
   createFishes(scenes) {
-    fish_test = new fishex.Fish();
-    scenes.add(fish_test.mesh);
-    fish_test_1 = fish_test.mesh;
-
     fishes[0] = new Fish1.Fish();
     fishes_[0] = fishes[0].fish1;
     scenes.add(fishes_[0]);
@@ -137,22 +130,6 @@ export class Fishes {
   }
 
   update(mousePos) {
-    fish_test_1.rotation.x += 0.005;
-    let fish_test_targetX = Helper.normalize(
-      mousePos.x,
-      -1,
-      1,
-      fish_test.minX,
-      fish_test.maxX
-    );
-    let fish_test_targetY = Helper.normalize(
-      mousePos.y,
-      -1,
-      1,
-      fish_test.minY,
-      fish_test.maxY
-    );
-
     /* Fish 1 */
     {
       fishes_[0].rotation.x += 0.005;
