@@ -51,7 +51,11 @@ let cameraPostionTempZ;
 let fishView = 0;
 let fishViewFlag = 0;
 let viewFlag = 0;
+let unBlock = 0;
+
 const clock = new THREE.Clock();
+const blocker = document.querySelector("#blocker");
+const instructions = document.querySelector("#instructions");
 
 const params = {
   // color: "#00ffff",
@@ -134,7 +138,7 @@ function initThree() {
   camera.position.set(0, 10, 20);
 
   controls = new OrbitControls(camera, canvas);
-  // controls.autoRotate = true;
+  controls.autoRotate = true;
   controls.autoRotateSpeed = 0.8;
   controls.enableDamping = true;
   controls.rotateSpeed = 0.3;
@@ -154,6 +158,14 @@ function initThree() {
 }
 
 function render() {
+  if (unBlock == 1) {
+    instructions.style.display = "none";
+    blocker.style.display = "none";
+  } else {
+    instructions.style.display = "";
+    blocker.style.display = "";
+  }
+
   var timer = 0.0001 * Date.now();
 
   // 창 크기에 따라 늘어나는 문제부터 해결해봅시다.
@@ -186,7 +198,7 @@ function render() {
   }
   if (loadingFlag == 1) {
     dirty++; // 1초에  ~100개씩 증가..·
-    console.log(dirty);
+    // console.log(dirty);
     if (dirty >= 2000 && dirty < 2200) {
       scene.children[15].children[1].material.color.r = 0.3;
       scene.children[15].children[1].material.color.g = 1;
@@ -338,16 +350,23 @@ function keyCodeOn(event) {
     case 68: // d
       moveRight = true;
       break;
-
-    case 86: // v입력시 1인칭 시점모드로
+    case 70: // v입력시 1인칭 시점모드로
       fishView = 1;
       break;
-    case 27: // ESC 입력시 3인칭 시점모드로
+    case 84: // t 입력시 3인칭 시점모드로
       fishView = 0;
+      break;
+    case 27: // ESC 입력시 화면 block
+      unBlock = 0;
       break;
   }
 }
-
+{
+  // 화면 block 해제
+  document.addEventListener("click", function () {
+    unBlock = 1;
+  });
+}
 {
   // 추후 더블 클릭시 먹이 생성 및 생성좌표 전달 예정
   canvas.addEventListener("dblclick", function () {

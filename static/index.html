@@ -27,13 +27,7 @@
 	<script type="module" src="/modules/InitShaders.js"></script>
 	<script type="module" src="/modules/MV.js"></script>
 
-<!--	<script type="module" src="/modules/three/OBJLoader2.js"></script>
-	<script type="module"  src="/modules/three/OrbitControls.js"></script>
-	<script type="module"  src="/modules/three/MTLLoader.js"></script>
-	<script type="module"  src="/modules/three/obj2/bridge/MtlObjBridge.js"></script>
-	<script type="module" src="/modules/three/three.js"></script>
-	<script type="module" src="/modules/three/three.module.js"></script> -->
-	<!-- <script type="module" src="js/Fish.js"></script> -->
+
 	<script type="module" src="js/ch_test.js"></script>
 
 </head>
@@ -41,13 +35,19 @@
 	<canvas id="gl-canvas">
 		Oops! it has Error!
 	</canvas>
-	<div id="loading">
+	<div id="blocker">
+		<div id="instructions">
+			<p style="display: contents; font-size: 36px; font-weight:bold">Click to play</p>
+			<br/><br/>
+			1st person view: F<br/>
+			1st person control: WASD + Mouse <br/>
+			3st person View: T
+		</div>
+	</div>
+	<div id="loading" style="color:white;">
 		<div>
 		  <div>...loading...</div>
 		</div>
 	</div>
-	
-
-   
 </body>
 </heml>
