@@ -23,12 +23,10 @@
 		}
 	</script>
 	<link rel="stylesheet" href="/css/index.css">
-	<script type="module" src="/modules/webgl-utils.js"></script>
-	<script type="module" src="/modules/InitShaders.js"></script>
-	<script type="module" src="/modules/MV.js"></script>
 
 
-	<script type="module" src="js/ch_test.js"></script>
+
+	<script type="module" src="js/index.js"></script>
 
 </head>
 <body>
@@ -41,8 +39,24 @@
 			<br/><br/>
 			1st person view: F<br/>
 			1st person control: WASD + Mouse <br/>
-			3st person View: T
+			3rd person View: T
 		</div>
+	</div>
+	<div id="guis">
+		<div id="manual">
+			<p style="display: contents; font-size: 25px; font-weight:bold">Manual</p>
+			<br/>
+			1st person View: F<br/>
+			1st person Control: WASD + Mouse <br/>
+			3rd person View: T<br/>
+     		3rd person Control: Mouse
+		</div>
+		<div id="dirty_timer">
+			<p style="display: contents; font-size: 20px; font-weight:bold">Dirty Rate:</p>
+			<p id="timer" style="display: contents; font-size: 20px; font-weight:bold">0%</p>
+
+		</div>
+		<button id="refair_btn"type="button">Refresh Water</button>
 	</div>
 	<div id="loading" style="color:white;">
 		<div>

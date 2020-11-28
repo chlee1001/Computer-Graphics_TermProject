@@ -25,6 +25,37 @@ canvas {
   cursor: pointer;
 }
 
+#guis div {
+  position: absolute;
+  color: #ffffff;
+  left: 10px;
+  top: 10px;
+  font-size: 20px;
+}
+#guis #dirty_timer {
+  position: absolute;
+  color: #ffffff;
+  left: 10px;
+  top: 175px;
+}
+#guis button {
+  position: absolute;
+  border: 3px solid skyblue;
+  margin-left: 3px;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0);
+  color: skyblue;
+  padding: 7px;
+  left: 10px;
+  top: 200px;
+  cursor: pointer;
+}
+
+#guis button:hover {
+  color: white;
+  background-color: skyblue;
+}
+
 #loading {
   position: absolute;
   left: 0;
