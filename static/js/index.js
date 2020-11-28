@@ -78,6 +78,7 @@ const params = {
 /* Main Function */
 window.onload = function init() {
   initThree();
+  addDirectionalLight();
   initObj();
   render();
 
@@ -161,8 +162,6 @@ function initThree() {
   FPControls.constrainVertical = true;
   FPControls.verticalMin = 1.0;
   FPControls.verticalMax = 2.0;
-
-  addDirectionalLight();
 }
 
 /* Every seconds Function : Window Size, Fish View, User Movement, Water Dirty, Bubble */
