@@ -6,7 +6,7 @@ Gachon University 2020 Fall semester
 
 ##### Demo: [URL](https://fish.chlee1001.synology.me/) (Using node.js)
 
-* Introduction : 2020 Fall semester Midterm Project
+* Introduction : 2020 Fall semester Final Project
 * Concept : Raising Fishbowl
 * Member : Park Seong Won, Lee Kang Uk, Lee Chae Hyeon
 * Task : Using Three.js, implement WEB fishbowl
