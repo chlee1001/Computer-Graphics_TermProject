@@ -221,6 +221,7 @@ function render() {
         scene.children[objNum].children[1].material.color.g = 0.2;
         scene.children[objNum].children[1].material.color.b = 0.7;
         dirtyTimer = 0;
+		dirty = 0;
       }
     }
     // Draw Bubbles

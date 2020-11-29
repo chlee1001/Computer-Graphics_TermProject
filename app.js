@@ -38,6 +38,6 @@ app.get("/", function (request, response) {
 });
 
 /* 서버를 ~~~~ 포트로 listen */
-server.listen(port, function () {
+server.listen(----, function () {
   console.log("서버 실행 중..");
 });

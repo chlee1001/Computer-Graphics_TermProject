@@ -101,7 +101,6 @@ export class Fishes {
       fishes_[1].position.x = 25 * Math.cos(speed);
       fishes_[1].position.y = -10 + 25 * Math.cos(speed);
       fishes_[1].rotation.y = -(timer * fishes[1].speed);
-      // fishes_[1].rotation.set(timer * fishes[1].speed, 0, 0);
     }
 
     /* Fish 3 */
