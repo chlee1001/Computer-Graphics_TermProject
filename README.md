@@ -9,7 +9,7 @@ Gachon University 2020 Fall semester
 * Introduction : 2020 Fall semester Midterm Project
 * Concept : Raising Fishbowl
 * Member : Park Seong Won, Lee Kang Uk, Lee Chae Hyeon
-* Task : Take a selfi through the Smart Drone
+* Task : Using Three.js, implement WEB fishbowl
 
 # Preview
 [Photo] (https://drive.google.com/file/d/1Nw3XssVQ8yBR26NbnQPbUNeHB9mZkUjq/view?usp=sharing)
