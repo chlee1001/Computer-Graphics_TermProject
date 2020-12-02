@@ -12,7 +12,8 @@ Gachon University 2020 Fall semester
 * Task : Using Three.js, implement WEB fishbowl
 
 # Preview
-[Photo] (https://drive.google.com/file/d/1Nw3XssVQ8yBR26NbnQPbUNeHB9mZkUjq/view?usp=sharing)
+![Preview](Preview.png)
+
 
 # Presentaion
 * Proposal Presentaion(2020.10.26): [[PDF](https://drive.google.com/file/d/1y6ClEMaePt1-3HsKvs2-RZpnNRtiyNYq/view?usp=sharing)] Topic selection and Scheduling
