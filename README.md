@@ -15,6 +15,7 @@ Gachon University 2020 Fall semester
 [Photo] (https://drive.google.com/file/d/1Nw3XssVQ8yBR26NbnQPbUNeHB9mZkUjq/view?usp=sharing)
 
 # Presentaion
-[PPTX] (https://drive.google.com/file/d/1B5cfIglWJ0vnz-ImvmTYNYo9U-QsLmeQ/view?usp=sharing)
+Proposal Presentaion(2020.10.26): [PDF](https://drive.google.com/file/d/1y6ClEMaePt1-3HsKvs2-RZpnNRtiyNYq/view?usp=sharing) Topic selection and Scheduling
+Final Presentation(2020.11.30): [PPTX](https://drive.google.com/file/d/1B5cfIglWJ0vnz-ImvmTYNYo9U-QsLmeQ/view?usp=sharing) Implementation details and performance
 
 
