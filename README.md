@@ -4,7 +4,8 @@ Gachon University 2020 Fall semester
 
 ### Title: Aquarium
 
-##### Demo: [URL](https://fish.chlee1001.synology.me/) (Using node.js)
+##### ~~Demo: [URL](https://fish.chlee1001.synology.me/) (Using node.js)~~Server is down
+#### Demo Video: [Link](https://youtu.be/Goi1VeH1tBU)
 
 * Introduction : 2020 Fall semester Final Project
 * Concept : Raising Fishbowl
